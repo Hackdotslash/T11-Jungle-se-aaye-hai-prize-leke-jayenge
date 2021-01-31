@@ -4,13 +4,19 @@ import cv2
 import numpy as np
 import pyaudio
 import wave
+import tkinter as tk
+from PIL import Image, ImageTk
 
 #INITIALISE HERE
 cap = cv2.VideoCapture(0)
 aud = pyaudio.PyAudio()
 vid_frame_width = int(cap.get(3))
 vid_frame_height = int(cap.get(4))
-
+root = tk.Tk()
+app = tk.Frame(root, bg="white")
+app.grid()
+lmain = tk.Label(app)
+lmain.grid()
 #DEFINE CONSTANTS HERE..
 SUSPICIOUS_THRESHOLD = 0.5
 CHUNK = 1024
@@ -20,7 +26,7 @@ RATE = 44100
 
 #DEFINE BASIC VARIABLES HERE..
 av_index = 1
-
+stream = 0
 recording = 0 
 video_output = 0
 audio_output = []
@@ -63,23 +69,30 @@ def record_if_suspicious(vid_frame,aud_frame):
             recording = 0
 
 
-
-while(True):
-
+def base_function():
+    global root
+    global stream
     ret, vid_frame = cap.read()
     stream = aud.open(format=FORMAT,channels=CHANNELS,rate=RATE,input=True, frames_per_buffer=CHUNK)
     aud_frame = stream.read(CHUNK)
-    cv2.imshow('Frame',vid_frame)
-
+    
     record_if_suspicious(vid_frame,aud_frame)
-    if cv2.waitKey(1) & 0xff == ord('q'):
-        break
 
-final_audio = ("Audio_"+str(av_index),'wb')
+    imgtk = ImageTk.PhotoImage(image=Image.fromarray(cv2.cvtColor(vid_frame, cv2.COLOR_BGR2RGBA)))
+    lmain.imgtk = imgtk
+    lmain.configure(image=imgtk)
+    lmain.after(1, base_function)   
+base_function()
+root.mainloop()
+
+
+
+
+final_audio = wave.open("Audio_"+str(av_index)+'.wav','wb')
 final_audio.setnchannels(CHANNELS)
-final_audio.setsampwidth(p.get_sample_size(FORMAT))
+final_audio.setsampwidth(aud.get_sample_size(FORMAT))
 final_audio.setframerate(RATE)
-final_audio.writeframes(b''.join(frames))
+final_audio.writeframes(b''.join(audio_output))
 final_audio.close()
 video_output.release()
 
