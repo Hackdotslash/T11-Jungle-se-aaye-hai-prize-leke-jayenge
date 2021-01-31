@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jul 29 19:47:08 2020
-
-@author: hp
-"""
-
 import cv2
 import numpy as np
 import tensorflow as tf
@@ -23,12 +16,12 @@ def get_landmark_model(saved_model='models/pose_model'):
 
     Returns
     -------
-    model : Tensorflow model
+    Model : Tensorflow model
         Facial landmarks model
 
     """
-    model = keras.models.load_model(saved_model)
-    return model
+    Model = keras.models.load_model(saved_model)
+    return Model
 
 def get_square_box(box):
     """Get a square box out of the given box, by expanding it."""
